@@ -83,12 +83,75 @@
     }
 
     label {
-      display: block;
+      display: flex;
+      align-items: center;
+      gap: 6px;
       color: #1e3a8a;
       font-weight: 600;
       font-size: 0.88rem;
       margin-bottom: 7px;
       letter-spacing: 0.01em;
+    }
+
+    /* ── Tooltip ── */
+    .tooltip-wrap {
+      position: relative;
+      display: inline-flex;
+    }
+
+    .tooltip-icon {
+      width: 17px;
+      height: 17px;
+      border-radius: 50%;
+      background: #dbeafe;
+      color: #2563eb;
+      font-size: 0.68rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: default;
+      flex-shrink: 0;
+      transition: background 0.15s;
+      user-select: none;
+    }
+
+    .tooltip-icon:hover { background: #bfdbfe; }
+
+    .tooltip-box {
+      display: none;
+      position: absolute;
+      right: 50%;
+      transform: translateX(50%);
+      bottom: calc(100% + 8px);
+      background: #1e293b;
+      color: #f1f5f9;
+      font-size: 0.78rem;
+      font-weight: 400;
+      line-height: 1.5;
+      padding: 8px 12px;
+      border-radius: 8px;
+      width: 200px;
+      text-align: center;
+      white-space: normal;
+      z-index: 10;
+      pointer-events: none;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+    }
+
+    .tooltip-box::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      right: 50%;
+      transform: translateX(50%);
+      border: 5px solid transparent;
+      border-top-color: #1e293b;
+    }
+
+    .tooltip-wrap:hover .tooltip-box,
+    .tooltip-wrap:focus-within .tooltip-box {
+      display: block;
     }
 
     .input-wrap {
@@ -412,21 +475,39 @@
     <div class="form-card">
       <form id="roiForm">
         <div class="form-group">
-          <label for="revenue">הכנסות חודשיות נוכחיות</label>
+          <label for="revenue">
+            הכנסות חודשיות נוכחיות
+            <span class="tooltip-wrap">
+              <span class="tooltip-icon">?</span>
+              <span class="tooltip-box">כמה כסף העסק מרוויח כרגע בחודש, לפני הוצאות שיווק</span>
+            </span>
+          </label>
           <div class="input-wrap">
             <span class="currency">₪</span>
             <input type="number" id="revenue" placeholder="50,000" min="0" required>
           </div>
         </div>
         <div class="form-group">
-          <label for="budget">תקציב שיווק חודשי</label>
+          <label for="budget">
+            תקציב שיווק חודשי
+            <span class="tooltip-wrap">
+              <span class="tooltip-icon">?</span>
+              <span class="tooltip-box">כמה אתם מתכננים להשקיע בפרסום ושיווק בכל חודש</span>
+            </span>
+          </label>
           <div class="input-wrap">
             <span class="currency">₪</span>
             <input type="number" id="budget" placeholder="5,000" min="0" required>
           </div>
         </div>
         <div class="form-group">
-          <label for="growth">אחוז צמיחה שנתי משוער</label>
+          <label for="growth">
+            אחוז צמיחה שנתי משוער
+            <span class="tooltip-wrap">
+              <span class="tooltip-icon">?</span>
+              <span class="tooltip-box">כמה אתם מצפים שההכנסות יגדלו השנה בזכות השיווק? בין 5% ל-30% זה סביר לרוב העסקים</span>
+            </span>
+          </label>
           <div class="input-wrap">
             <span class="currency">%</span>
             <input type="number" id="growth" placeholder="20" min="0" max="100" required>
