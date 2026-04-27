@@ -594,12 +594,20 @@
       });
     }
 
+    // restore last saved values on page load
+    const saved = JSON.parse(localStorage.getItem('roi_calc') || '{}');
+    if (saved.revenue) document.getElementById('revenue').value = saved.revenue;
+    if (saved.budget)  document.getElementById('budget').value  = saved.budget;
+    if (saved.growth)  document.getElementById('growth').value  = saved.growth;
+
     document.getElementById('roiForm').addEventListener('submit', function (e) {
       e.preventDefault();
 
       const revenue    = parseFloat(document.getElementById('revenue').value);
       const budget     = parseFloat(document.getElementById('budget').value);
       const growth     = parseFloat(document.getElementById('growth').value);
+
+      localStorage.setItem('roi_calc', JSON.stringify({ revenue, budget, growth }));
       const annualRate = growth / 100;
 
       const projected = (n) => revenue * Math.pow(1 + annualRate, n / 12);
