@@ -778,7 +778,7 @@
       doc.setTextColor(255, 255, 255);
       doc.setFontSize(16);
       doc.setFont('helvetica', 'bold');
-      doc.text('ROI Digital Marketing Calculator', W / 2, 12, { align: 'center' });
+      doc.text('מחשבון ROI לשיווק דיגיטלי', W / 2, 12, { align: 'center' });
       doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
       doc.text(date, W / 2, 20, { align: 'center' });
@@ -788,7 +788,7 @@
       doc.setTextColor(30, 58, 138);
       doc.setFontSize(11);
       doc.setFont('helvetica', 'bold');
-      doc.text('Input Data', 14, y);
+      doc.text('נתוני קלט', 14, y);
       y += 6;
 
       doc.setDrawColor(219, 234, 254);
@@ -797,9 +797,9 @@
       y += 5;
 
       const inputs = [
-        ['Monthly Revenue',      fmt(revenue)],
-        ['Monthly Marketing Budget', fmt(budget)],
-        ['Annual Growth Rate',   growth + '%'],
+        ['הכנסות חודשיות נוכחיות', fmt(revenue)],
+        ['תקציב שיווק חודשי',      fmt(budget)],
+        ['אחוז צמיחה שנתי משוער', growth + '%'],
       ];
 
       doc.setFontSize(10);
@@ -818,20 +818,20 @@
       doc.setTextColor(30, 58, 138);
       doc.setFontSize(11);
       doc.setFont('helvetica', 'bold');
-      doc.text('Forecast Results', 14, y);
+      doc.text('תוצאות החישוב', 14, y);
       y += 6;
       doc.setDrawColor(219, 234, 254);
       doc.line(14, y, W - 14, y);
       y += 5;
 
       const results = [
-        ['Revenue after 3 months',   fmt(window._roiChart.data.datasets[1].data[3])],
-        ['Revenue after 6 months',   fmt(window._roiChart.data.datasets[1].data[6])],
-        ['Revenue after 12 months',  fmt(window._roiChart.data.datasets[1].data[12])],
-        ['Forecast Annual Revenue',  fmt(forecastAnnual)],
-        ['Annual Marketing Budget',  fmt(annualBudget)],
-        ['Net Gain / Loss',          fmt(netGain)],
-        ['Marketing ROI',            pct(roi)],
+        ['הכנסות חזויות לאחר 3 חודשים',  fmt(window._roiChart.data.datasets[1].data[3])],
+        ['הכנסות חזויות לאחר 6 חודשים',  fmt(window._roiChart.data.datasets[1].data[6])],
+        ['הכנסות חזויות לאחר 12 חודשים', fmt(window._roiChart.data.datasets[1].data[12])],
+        ['הכנסות שנתיות חזויות',          fmt(forecastAnnual)],
+        ['תקציב שיווק שנתי',              fmt(annualBudget)],
+        ['רווח / הפסד כולל',              fmt(netGain)],
+        ['ROI שיווקי שנתי',               pct(roi)],
       ];
 
       doc.setFontSize(10);
@@ -843,8 +843,8 @@
         doc.setFont('helvetica', 'normal');
         doc.setTextColor(100, 116, 139);
         doc.text(label, 16, y);
-        const isROI  = label === 'Marketing ROI';
-        const isNeg  = netGain < 0 && label === 'Net Gain / Loss';
+        const isROI  = label === 'ROI שיווקי שנתי';
+        const isNeg  = netGain < 0 && label === 'רווח / הפסד כולל';
         const isNegR = roi < 0 && isROI;
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(isNeg || isNegR ? 220 : (isROI ? 22 : 30),
@@ -869,7 +869,7 @@
       doc.setFontSize(8);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(148, 163, 184);
-      doc.text('Built with Claude Code', W / 2, pageH - 4, { align: 'center' });
+      doc.text('נבנה עם Claude Code 💙', W / 2, pageH - 4, { align: 'center' });
 
       doc.save(`roi-report-${date.replace(/\//g, '-')}.pdf`);
 
