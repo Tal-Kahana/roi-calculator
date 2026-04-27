@@ -8,6 +8,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <style>
     *, *::before, *::after {
       box-sizing: border-box;
@@ -421,6 +423,26 @@
     .ai-card .ai-body.loading { color: #94a3b8; font-style: italic; }
     .ai-card .ai-body.error   { color: #dc2626; }
 
+    /* ── PDF button ── */
+    #pdfBtn {
+      width: 100%;
+      padding: 13px;
+      background: #fff;
+      color: #475569;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 0.97rem;
+      font-family: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.18s, border-color 0.18s, transform 0.12s;
+      margin-bottom: 12px;
+    }
+
+    #pdfBtn:hover  { background: #f8faff; border-color: #bfdbfe; }
+    #pdfBtn:active { transform: scale(0.98); }
+    #pdfBtn:disabled { opacity: 0.55; cursor: not-allowed; }
+
     /* ── Footer ── */
     footer {
       width: 100%;
@@ -567,6 +589,10 @@
             <div class="card-value" id="resROI">—</div>
           </div>
         </div>
+      </div>
+
+      <div id="pdfSection" style="display:none; margin-top:4px;">
+        <button id="pdfBtn" type="button">📄 הורד דוח PDF</button>
       </div>
 
       <div id="aiSection">
@@ -723,11 +749,132 @@
       });
 
       window._calcData = { revenue, budget, growth, forecastAnnual, annualBudget, netGain, roi };
-      document.getElementById('aiSection').style.display = 'block';
+      document.getElementById('pdfSection').style.display = 'block';
+      document.getElementById('aiSection').style.display  = 'block';
       document.getElementById('aiCard').style.display    = 'none';
 
       triggerFadeIn();
       document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+
+    document.getElementById('pdfBtn').addEventListener('click', async function () {
+      const btn = document.getElementById('pdfBtn');
+      btn.disabled    = true;
+      btn.textContent = '⏳ מכין דוח...';
+
+      const { revenue, budget, growth, forecastAnnual, annualBudget, netGain, roi } = window._calcData;
+      const fmt = (n) => '₪' + Math.round(n).toLocaleString('he-IL');
+      const pct = (n) => (n >= 0 ? '+' : '') + n.toFixed(1) + '%';
+      const date = new Date().toLocaleDateString('he-IL');
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const W = doc.internal.pageSize.getWidth();
+
+      // header background
+      doc.setFillColor(37, 99, 235);
+      doc.rect(0, 0, W, 28, 'F');
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(16);
+      doc.setFont('helvetica', 'bold');
+      doc.text('ROI Digital Marketing Calculator', W / 2, 12, { align: 'center' });
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      doc.text(date, W / 2, 20, { align: 'center' });
+
+      // inputs section
+      let y = 36;
+      doc.setTextColor(30, 58, 138);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Input Data', 14, y);
+      y += 6;
+
+      doc.setDrawColor(219, 234, 254);
+      doc.setLineWidth(0.3);
+      doc.line(14, y, W - 14, y);
+      y += 5;
+
+      const inputs = [
+        ['Monthly Revenue',      fmt(revenue)],
+        ['Monthly Marketing Budget', fmt(budget)],
+        ['Annual Growth Rate',   growth + '%'],
+      ];
+
+      doc.setFontSize(10);
+      inputs.forEach(([label, value]) => {
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(100, 116, 139);
+        doc.text(label, 16, y);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(30, 41, 59);
+        doc.text(value, W - 16, y, { align: 'right' });
+        y += 7;
+      });
+
+      // results section
+      y += 4;
+      doc.setTextColor(30, 58, 138);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Forecast Results', 14, y);
+      y += 6;
+      doc.setDrawColor(219, 234, 254);
+      doc.line(14, y, W - 14, y);
+      y += 5;
+
+      const results = [
+        ['Revenue after 3 months',   fmt(window._roiChart.data.datasets[1].data[3])],
+        ['Revenue after 6 months',   fmt(window._roiChart.data.datasets[1].data[6])],
+        ['Revenue after 12 months',  fmt(window._roiChart.data.datasets[1].data[12])],
+        ['Forecast Annual Revenue',  fmt(forecastAnnual)],
+        ['Annual Marketing Budget',  fmt(annualBudget)],
+        ['Net Gain / Loss',          fmt(netGain)],
+        ['Marketing ROI',            pct(roi)],
+      ];
+
+      doc.setFontSize(10);
+      results.forEach(([label, value], i) => {
+        if (i % 2 === 0) {
+          doc.setFillColor(248, 250, 255);
+          doc.rect(14, y - 4, W - 28, 7, 'F');
+        }
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(100, 116, 139);
+        doc.text(label, 16, y);
+        const isROI  = label === 'Marketing ROI';
+        const isNeg  = netGain < 0 && label === 'Net Gain / Loss';
+        const isNegR = roi < 0 && isROI;
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(isNeg || isNegR ? 220 : (isROI ? 22 : 30),
+                         isNeg || isNegR ? 38  : (isROI ? 163 : 41),
+                         isNeg || isNegR ? 38  : (isROI ? 74  : 59));
+        doc.text(value, W - 16, y, { align: 'right' });
+        y += 7;
+      });
+
+      // chart
+      y += 6;
+      const canvas = document.getElementById('revenueChart');
+      const chartImg = await html2canvas(canvas, { scale: 2, backgroundColor: '#fff' });
+      const imgData  = chartImg.toDataURL('image/png');
+      const imgH     = ((W - 28) * chartImg.height) / chartImg.width;
+      doc.addImage(imgData, 'PNG', 14, y, W - 28, imgH);
+
+      // footer
+      const pageH = doc.internal.pageSize.getHeight();
+      doc.setFillColor(248, 250, 255);
+      doc.rect(0, pageH - 10, W, 10, 'F');
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(148, 163, 184);
+      doc.text('Built with Claude Code', W / 2, pageH - 4, { align: 'center' });
+
+      doc.save(`roi-report-${date.replace(/\//g, '-')}.pdf`);
+
+      btn.disabled    = false;
+      btn.textContent = '📄 הורד דוח PDF';
     });
 
     document.getElementById('aiBtn').addEventListener('click', async function () {
